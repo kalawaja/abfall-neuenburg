@@ -7,8 +7,7 @@ const DB = {
     { id: 2, name: "Biotonne",        color: "#6B3A1F", bg: "#FDF3EB", emoji: "🌿", hint: "Küchen- und Gartenabfälle" },
     { id: 3, name: "Gelbe Tonne",     color: "#D97706", bg: "#FFFBEB", emoji: "♻️", hint: "Verpackungen aus Kunststoff & Metall" },
     { id: 4, name: "Papiertonne",     color: "#1A56DB", bg: "#EFF6FF", emoji: "📄", hint: "Papier, Pappe, Karton" },
-    { id: 5, name: "Glas",            color: "#166534", bg: "#F0FDF4", emoji: "🍾", hint: "Farbsortiert zum Container" },
-    { id: 6, name: "Sperrmüll",       color: "#6B7280", bg: "#F9FAFB", emoji: "🛋️", hint: "Sperrige Haushaltsgegenstände" },
+    { id: 6, name: "Weihnachtsbäume", color: "#166534", bg: "#F0FDF4", emoji: "🎄", hint: "Weihnachtsbaumsammlung im Januar" },
     { id: 7, name: "Schadstoffmobil", color: "#DC2626", bg: "#FEF2F2", emoji: "☣️", hint: "Farben, Batterien, Chemikalien" },
   ],
   zones: [
@@ -267,8 +266,6 @@ const DB = {
     { item: "Zigarettenkippen",   type: 1, tip: "Ausgedrückt in den Restmüll" },
     { item: "Katzenstreu",        type: 1, tip: "In Plastikbeutel verpackt" },
     { item: "Glühbirnen",         type: 1, tip: "Nicht ins Altglas!" },
-    { item: "Glasflaschen",       type: 5, tip: "Farbsortiert: weiß, braun, grün" },
-    { item: "Einmachglas",        type: 5, tip: "Ohne Deckel einwerfen" },
     { item: "Spiegel",            type: 1, tip: "Kein Altglas – Restmüll!" },
     { item: "Medikamente",        type: 7, tip: "Schadstoffmobil oder Apotheke" },
     { item: "Batterien",          type: 7, tip: "Sammelbox im Supermarkt" },

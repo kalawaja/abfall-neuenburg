@@ -3,12 +3,13 @@ import { useState, useMemo, useEffect } from "react";
 // ─── DATENBANK ────────────────────────────────────────────────────────────────
 const DB = {
   waste_types: [
-    { id: 1, name: "Restmüll",        color: "#888888", bg: "#F2F2F7", emoji: "🗑️", hint: "Nicht recycelbare Abfälle" },
-    { id: 2, name: "Biotonne",        color: "#6B3A1F", bg: "#FDF3EB", emoji: "🌿", hint: "Küchen- und Gartenabfälle" },
-    { id: 3, name: "Gelbe Tonne",     color: "#D97706", bg: "#FFFBEB", emoji: "♻️", hint: "Verpackungen aus Kunststoff & Metall" },
-    { id: 4, name: "Papiertonne",     color: "#1A56DB", bg: "#EFF6FF", emoji: "📄", hint: "Papier, Pappe, Karton" },
-    { id: 6, name: "Weihnachtsbäume", color: "#166534", bg: "#F0FDF4", emoji: "🎄", hint: "Weihnachtsbaumsammlung im Januar" },
-    { id: 7, name: "Schadstoffmobil", color: "#DC2626", bg: "#FEF2F2", emoji: "☣️", hint: "Farben, Batterien, Chemikalien" },
+    { id: 1, name: "Restmüll",              color: "#6B7280", bg: "#F4F4F5", emoji: "🗑️", hint: "Nicht recycelbare Abfälle" },
+    { id: 2, name: "Biotonne",              color: "#92400E", bg: "#FDF3EB", emoji: "🌿", hint: "Küchen- und Gartenabfälle" },
+    { id: 3, name: "Gelbe Tonne",           color: "#CA8A04", bg: "#FEFCE8", emoji: "♻️", hint: "Verpackungen aus Kunststoff & Metall" },
+    { id: 4, name: "Papiertonne",           color: "#1D4ED8", bg: "#EFF6FF", emoji: "📄", hint: "Papier, Pappe, Karton" },
+    { id: 8, name: "Papier Vereinssamml.",  color: "#0891B2", bg: "#ECFEFF", emoji: "📰", hint: "Vereinssammlung – Bündel an die Straße" },
+    { id: 6, name: "Weihnachtsbäume",       color: "#16A34A", bg: "#F0FDF4", emoji: "🎄", hint: "Weihnachtsbaumsammlung im Januar" },
+    { id: 7, name: "Schadstoffsammlung",    color: "#DC2626", bg: "#FEF2F2", emoji: "☣️", hint: "Farben, Batterien, Chemikalien" },
   ],
   zones: [
     { id: 1, code: "S",  name: "Stadt",        subtitle: "Neuenburg Kernstadt" },
@@ -16,230 +17,397 @@ const DB = {
     { id: 3, code: "St", name: "Steinenstadt", subtitle: "Ortsteil Steinenstadt" },
     { id: 4, code: "Z",  name: "Zienken",      subtitle: "Ortsteil Zienken" },
   ],
-  // 390 Einträge – direkt aus ICS-Dateien konvertiert (2026, alle 4 Zonen)
+  // 390 Einträge – direkt aus ICS-Dateien (2026, alle 4 Zonen, Vereinssammlung = type 8)
   collections: [
-    { date: "2026-01-05", type: 2, zone: 1 }, { date: "2026-01-05", type: 3, zone: 1 },
-    { date: "2026-01-07", type: 2, zone: 2 }, { date: "2026-01-07", type: 3, zone: 2 },
-    { date: "2026-01-07", type: 2, zone: 3 }, { date: "2026-01-07", type: 3, zone: 3 },
-    { date: "2026-01-07", type: 2, zone: 4 }, { date: "2026-01-07", type: 3, zone: 4 },
-    { date: "2026-01-10", type: 6, zone: 1 }, { date: "2026-01-10", type: 6, zone: 2 },
-    { date: "2026-01-10", type: 6, zone: 3 }, { date: "2026-01-10", type: 6, zone: 4 },
-    { date: "2026-01-12", type: 1, zone: 1 }, { date: "2026-01-12", type: 1, zone: 2 },
-    { date: "2026-01-12", type: 1, zone: 3 }, { date: "2026-01-12", type: 1, zone: 4 },
-    { date: "2026-01-19", type: 2, zone: 1 }, { date: "2026-01-19", type: 4, zone: 1 },
-    { date: "2026-01-20", type: 2, zone: 2 }, { date: "2026-01-20", type: 4, zone: 2 },
-    { date: "2026-01-20", type: 2, zone: 3 }, { date: "2026-01-20", type: 4, zone: 3 },
-    { date: "2026-01-20", type: 2, zone: 4 }, { date: "2026-01-20", type: 4, zone: 4 },
-    { date: "2026-01-26", type: 1, zone: 1 }, { date: "2026-01-26", type: 3, zone: 1 },
-    { date: "2026-01-26", type: 1, zone: 2 }, { date: "2026-01-26", type: 1, zone: 3 },
+    { date: "2026-01-05", type: 2, zone: 1 },
+    { date: "2026-01-05", type: 3, zone: 1 },
+    { date: "2026-01-07", type: 2, zone: 2 },
+    { date: "2026-01-07", type: 3, zone: 2 },
+    { date: "2026-01-07", type: 2, zone: 3 },
+    { date: "2026-01-07", type: 3, zone: 3 },
+    { date: "2026-01-07", type: 2, zone: 4 },
+    { date: "2026-01-07", type: 3, zone: 4 },
+    { date: "2026-01-10", type: 6, zone: 1 },
+    { date: "2026-01-10", type: 6, zone: 2 },
+    { date: "2026-01-10", type: 6, zone: 3 },
+    { date: "2026-01-10", type: 6, zone: 4 },
+    { date: "2026-01-12", type: 1, zone: 1 },
+    { date: "2026-01-12", type: 1, zone: 2 },
+    { date: "2026-01-12", type: 1, zone: 3 },
+    { date: "2026-01-12", type: 1, zone: 4 },
+    { date: "2026-01-19", type: 2, zone: 1 },
+    { date: "2026-01-19", type: 4, zone: 1 },
+    { date: "2026-01-20", type: 2, zone: 2 },
+    { date: "2026-01-20", type: 4, zone: 2 },
+    { date: "2026-01-20", type: 2, zone: 3 },
+    { date: "2026-01-20", type: 4, zone: 3 },
+    { date: "2026-01-20", type: 2, zone: 4 },
+    { date: "2026-01-20", type: 4, zone: 4 },
+    { date: "2026-01-26", type: 1, zone: 1 },
+    { date: "2026-01-26", type: 3, zone: 1 },
+    { date: "2026-01-26", type: 1, zone: 2 },
+    { date: "2026-01-26", type: 1, zone: 3 },
     { date: "2026-01-26", type: 1, zone: 4 },
-    { date: "2026-01-27", type: 3, zone: 2 }, { date: "2026-01-27", type: 3, zone: 3 },
+    { date: "2026-01-27", type: 3, zone: 2 },
+    { date: "2026-01-27", type: 3, zone: 3 },
     { date: "2026-01-27", type: 3, zone: 4 },
-    { date: "2026-01-31", type: 7, zone: 1 }, { date: "2026-01-31", type: 7, zone: 2 },
-    { date: "2026-01-31", type: 7, zone: 3 }, { date: "2026-01-31", type: 7, zone: 4 },
+    { date: "2026-01-31", type: 7, zone: 1 },
+    { date: "2026-01-31", type: 7, zone: 2 },
+    { date: "2026-01-31", type: 7, zone: 3 },
+    { date: "2026-01-31", type: 7, zone: 4 },
     { date: "2026-02-02", type: 2, zone: 1 },
-    { date: "2026-02-03", type: 2, zone: 2 }, { date: "2026-02-03", type: 2, zone: 3 },
+    { date: "2026-02-03", type: 2, zone: 2 },
+    { date: "2026-02-03", type: 2, zone: 3 },
     { date: "2026-02-03", type: 2, zone: 4 },
-    { date: "2026-02-09", type: 1, zone: 1 }, { date: "2026-02-09", type: 1, zone: 2 },
-    { date: "2026-02-09", type: 1, zone: 3 }, { date: "2026-02-09", type: 1, zone: 4 },
-    { date: "2026-02-17", type: 2, zone: 1 }, { date: "2026-02-17", type: 3, zone: 1 },
+    { date: "2026-02-09", type: 1, zone: 1 },
+    { date: "2026-02-09", type: 1, zone: 2 },
+    { date: "2026-02-09", type: 1, zone: 3 },
+    { date: "2026-02-09", type: 1, zone: 4 },
+    { date: "2026-02-17", type: 2, zone: 1 },
+    { date: "2026-02-17", type: 3, zone: 1 },
     { date: "2026-02-17", type: 4, zone: 1 },
-    { date: "2026-02-18", type: 2, zone: 2 }, { date: "2026-02-18", type: 3, zone: 2 },
-    { date: "2026-02-18", type: 4, zone: 2 }, { date: "2026-02-18", type: 2, zone: 3 },
-    { date: "2026-02-18", type: 3, zone: 3 }, { date: "2026-02-18", type: 4, zone: 3 },
-    { date: "2026-02-18", type: 2, zone: 4 }, { date: "2026-02-18", type: 3, zone: 4 },
+    { date: "2026-02-18", type: 2, zone: 2 },
+    { date: "2026-02-18", type: 3, zone: 2 },
+    { date: "2026-02-18", type: 4, zone: 2 },
+    { date: "2026-02-18", type: 2, zone: 3 },
+    { date: "2026-02-18", type: 3, zone: 3 },
+    { date: "2026-02-18", type: 4, zone: 3 },
+    { date: "2026-02-18", type: 2, zone: 4 },
+    { date: "2026-02-18", type: 3, zone: 4 },
     { date: "2026-02-18", type: 4, zone: 4 },
-    { date: "2026-02-23", type: 1, zone: 1 }, { date: "2026-02-23", type: 1, zone: 2 },
-    { date: "2026-02-23", type: 1, zone: 3 }, { date: "2026-02-23", type: 1, zone: 4 },
-    { date: "2026-02-28", type: 4, zone: 2 },
+    { date: "2026-02-23", type: 1, zone: 1 },
+    { date: "2026-02-23", type: 1, zone: 2 },
+    { date: "2026-02-23", type: 1, zone: 3 },
+    { date: "2026-02-23", type: 1, zone: 4 },
+    { date: "2026-02-28", type: 8, zone: 2 },
     { date: "2026-03-02", type: 2, zone: 1 },
-    { date: "2026-03-03", type: 2, zone: 2 }, { date: "2026-03-03", type: 2, zone: 3 },
+    { date: "2026-03-03", type: 2, zone: 2 },
+    { date: "2026-03-03", type: 2, zone: 3 },
     { date: "2026-03-03", type: 2, zone: 4 },
-    { date: "2026-03-09", type: 1, zone: 1 }, { date: "2026-03-09", type: 3, zone: 1 },
-    { date: "2026-03-09", type: 1, zone: 2 }, { date: "2026-03-09", type: 1, zone: 3 },
+    { date: "2026-03-09", type: 1, zone: 1 },
+    { date: "2026-03-09", type: 3, zone: 1 },
+    { date: "2026-03-09", type: 1, zone: 2 },
+    { date: "2026-03-09", type: 1, zone: 3 },
     { date: "2026-03-09", type: 1, zone: 4 },
-    { date: "2026-03-10", type: 7, zone: 1 }, { date: "2026-03-10", type: 3, zone: 2 },
-    { date: "2026-03-10", type: 7, zone: 2 }, { date: "2026-03-10", type: 3, zone: 3 },
-    { date: "2026-03-10", type: 7, zone: 3 }, { date: "2026-03-10", type: 3, zone: 4 },
+    { date: "2026-03-10", type: 7, zone: 1 },
+    { date: "2026-03-10", type: 3, zone: 2 },
+    { date: "2026-03-10", type: 7, zone: 2 },
+    { date: "2026-03-10", type: 3, zone: 3 },
+    { date: "2026-03-10", type: 7, zone: 3 },
+    { date: "2026-03-10", type: 3, zone: 4 },
     { date: "2026-03-10", type: 7, zone: 4 },
-    { date: "2026-03-16", type: 2, zone: 1 }, { date: "2026-03-16", type: 4, zone: 1 },
-    { date: "2026-03-17", type: 2, zone: 2 }, { date: "2026-03-17", type: 4, zone: 2 },
-    { date: "2026-03-17", type: 2, zone: 3 }, { date: "2026-03-17", type: 4, zone: 3 },
-    { date: "2026-03-17", type: 2, zone: 4 }, { date: "2026-03-17", type: 4, zone: 4 },
-    { date: "2026-03-23", type: 1, zone: 1 }, { date: "2026-03-23", type: 1, zone: 2 },
-    { date: "2026-03-23", type: 1, zone: 3 }, { date: "2026-03-23", type: 1, zone: 4 },
-    { date: "2026-03-30", type: 2, zone: 1 }, { date: "2026-03-30", type: 3, zone: 1 },
-    { date: "2026-03-31", type: 2, zone: 2 }, { date: "2026-03-31", type: 3, zone: 2 },
-    { date: "2026-03-31", type: 2, zone: 3 }, { date: "2026-03-31", type: 3, zone: 3 },
-    { date: "2026-03-31", type: 2, zone: 4 }, { date: "2026-03-31", type: 3, zone: 4 },
-    { date: "2026-04-07", type: 1, zone: 1 }, { date: "2026-04-07", type: 1, zone: 2 },
-    { date: "2026-04-07", type: 1, zone: 3 }, { date: "2026-04-07", type: 1, zone: 4 },
-    { date: "2026-04-13", type: 2, zone: 1 }, { date: "2026-04-13", type: 4, zone: 1 },
-    { date: "2026-04-14", type: 2, zone: 2 }, { date: "2026-04-14", type: 4, zone: 2 },
-    { date: "2026-04-14", type: 2, zone: 3 }, { date: "2026-04-14", type: 4, zone: 3 },
-    { date: "2026-04-14", type: 2, zone: 4 }, { date: "2026-04-14", type: 4, zone: 4 },
-    { date: "2026-04-20", type: 1, zone: 1 }, { date: "2026-04-20", type: 3, zone: 1 },
-    { date: "2026-04-20", type: 1, zone: 2 }, { date: "2026-04-20", type: 1, zone: 3 },
+    { date: "2026-03-16", type: 2, zone: 1 },
+    { date: "2026-03-16", type: 4, zone: 1 },
+    { date: "2026-03-17", type: 2, zone: 2 },
+    { date: "2026-03-17", type: 4, zone: 2 },
+    { date: "2026-03-17", type: 2, zone: 3 },
+    { date: "2026-03-17", type: 4, zone: 3 },
+    { date: "2026-03-17", type: 2, zone: 4 },
+    { date: "2026-03-17", type: 4, zone: 4 },
+    { date: "2026-03-23", type: 1, zone: 1 },
+    { date: "2026-03-23", type: 1, zone: 2 },
+    { date: "2026-03-23", type: 1, zone: 3 },
+    { date: "2026-03-23", type: 1, zone: 4 },
+    { date: "2026-03-30", type: 2, zone: 1 },
+    { date: "2026-03-30", type: 3, zone: 1 },
+    { date: "2026-03-31", type: 2, zone: 2 },
+    { date: "2026-03-31", type: 3, zone: 2 },
+    { date: "2026-03-31", type: 2, zone: 3 },
+    { date: "2026-03-31", type: 3, zone: 3 },
+    { date: "2026-03-31", type: 2, zone: 4 },
+    { date: "2026-03-31", type: 3, zone: 4 },
+    { date: "2026-04-07", type: 1, zone: 1 },
+    { date: "2026-04-07", type: 1, zone: 2 },
+    { date: "2026-04-07", type: 1, zone: 3 },
+    { date: "2026-04-07", type: 1, zone: 4 },
+    { date: "2026-04-13", type: 2, zone: 1 },
+    { date: "2026-04-13", type: 4, zone: 1 },
+    { date: "2026-04-14", type: 2, zone: 2 },
+    { date: "2026-04-14", type: 4, zone: 2 },
+    { date: "2026-04-14", type: 2, zone: 3 },
+    { date: "2026-04-14", type: 4, zone: 3 },
+    { date: "2026-04-14", type: 2, zone: 4 },
+    { date: "2026-04-14", type: 4, zone: 4 },
+    { date: "2026-04-20", type: 1, zone: 1 },
+    { date: "2026-04-20", type: 3, zone: 1 },
+    { date: "2026-04-20", type: 1, zone: 2 },
+    { date: "2026-04-20", type: 1, zone: 3 },
     { date: "2026-04-20", type: 1, zone: 4 },
-    { date: "2026-04-21", type: 3, zone: 2 }, { date: "2026-04-21", type: 3, zone: 3 },
+    { date: "2026-04-21", type: 3, zone: 2 },
+    { date: "2026-04-21", type: 3, zone: 3 },
     { date: "2026-04-21", type: 3, zone: 4 },
-    { date: "2026-04-25", type: 4, zone: 1 },
+    { date: "2026-04-25", type: 8, zone: 1 },
     { date: "2026-04-27", type: 2, zone: 1 },
-    { date: "2026-04-28", type: 2, zone: 2 }, { date: "2026-04-28", type: 2, zone: 3 },
+    { date: "2026-04-28", type: 2, zone: 2 },
+    { date: "2026-04-28", type: 2, zone: 3 },
     { date: "2026-04-28", type: 2, zone: 4 },
-    { date: "2026-05-04", type: 1, zone: 1 }, { date: "2026-05-04", type: 1, zone: 2 },
-    { date: "2026-05-04", type: 1, zone: 3 }, { date: "2026-05-04", type: 1, zone: 4 },
-    { date: "2026-05-09", type: 4, zone: 2 },
-    { date: "2026-05-11", type: 2, zone: 1 }, { date: "2026-05-11", type: 3, zone: 1 },
+    { date: "2026-05-04", type: 1, zone: 1 },
+    { date: "2026-05-04", type: 1, zone: 2 },
+    { date: "2026-05-04", type: 1, zone: 3 },
+    { date: "2026-05-04", type: 1, zone: 4 },
+    { date: "2026-05-09", type: 8, zone: 2 },
+    { date: "2026-05-11", type: 2, zone: 1 },
+    { date: "2026-05-11", type: 3, zone: 1 },
     { date: "2026-05-11", type: 4, zone: 1 },
-    { date: "2026-05-12", type: 2, zone: 2 }, { date: "2026-05-12", type: 3, zone: 2 },
-    { date: "2026-05-12", type: 4, zone: 2 }, { date: "2026-05-12", type: 2, zone: 3 },
-    { date: "2026-05-12", type: 3, zone: 3 }, { date: "2026-05-12", type: 4, zone: 3 },
-    { date: "2026-05-12", type: 2, zone: 4 }, { date: "2026-05-12", type: 3, zone: 4 },
+    { date: "2026-05-12", type: 2, zone: 2 },
+    { date: "2026-05-12", type: 3, zone: 2 },
+    { date: "2026-05-12", type: 4, zone: 2 },
+    { date: "2026-05-12", type: 2, zone: 3 },
+    { date: "2026-05-12", type: 3, zone: 3 },
+    { date: "2026-05-12", type: 4, zone: 3 },
+    { date: "2026-05-12", type: 2, zone: 4 },
+    { date: "2026-05-12", type: 3, zone: 4 },
     { date: "2026-05-12", type: 4, zone: 4 },
-    { date: "2026-05-18", type: 1, zone: 1 }, { date: "2026-05-18", type: 1, zone: 2 },
-    { date: "2026-05-18", type: 1, zone: 3 }, { date: "2026-05-18", type: 1, zone: 4 },
+    { date: "2026-05-18", type: 1, zone: 1 },
+    { date: "2026-05-18", type: 1, zone: 2 },
+    { date: "2026-05-18", type: 1, zone: 3 },
+    { date: "2026-05-18", type: 1, zone: 4 },
     { date: "2026-05-26", type: 2, zone: 1 },
-    { date: "2026-05-27", type: 2, zone: 2 }, { date: "2026-05-27", type: 2, zone: 3 },
+    { date: "2026-05-27", type: 2, zone: 2 },
+    { date: "2026-05-27", type: 2, zone: 3 },
     { date: "2026-05-27", type: 2, zone: 4 },
-    { date: "2026-06-01", type: 1, zone: 1 }, { date: "2026-06-01", type: 3, zone: 1 },
-    { date: "2026-06-01", type: 1, zone: 2 }, { date: "2026-06-01", type: 1, zone: 3 },
+    { date: "2026-06-01", type: 1, zone: 1 },
+    { date: "2026-06-01", type: 3, zone: 1 },
+    { date: "2026-06-01", type: 1, zone: 2 },
+    { date: "2026-06-01", type: 1, zone: 3 },
     { date: "2026-06-01", type: 1, zone: 4 },
-    { date: "2026-06-02", type: 3, zone: 2 }, { date: "2026-06-02", type: 3, zone: 3 },
+    { date: "2026-06-02", type: 3, zone: 2 },
+    { date: "2026-06-02", type: 3, zone: 3 },
     { date: "2026-06-02", type: 3, zone: 4 },
-    { date: "2026-06-08", type: 2, zone: 1 }, { date: "2026-06-08", type: 4, zone: 1 },
-    { date: "2026-06-09", type: 2, zone: 2 }, { date: "2026-06-09", type: 4, zone: 2 },
-    { date: "2026-06-09", type: 2, zone: 3 }, { date: "2026-06-09", type: 4, zone: 3 },
-    { date: "2026-06-09", type: 2, zone: 4 }, { date: "2026-06-09", type: 4, zone: 4 },
-    { date: "2026-06-15", type: 1, zone: 1 }, { date: "2026-06-15", type: 2, zone: 1 },
-    { date: "2026-06-15", type: 1, zone: 2 }, { date: "2026-06-15", type: 1, zone: 3 },
+    { date: "2026-06-08", type: 2, zone: 1 },
+    { date: "2026-06-08", type: 4, zone: 1 },
+    { date: "2026-06-09", type: 2, zone: 2 },
+    { date: "2026-06-09", type: 4, zone: 2 },
+    { date: "2026-06-09", type: 2, zone: 3 },
+    { date: "2026-06-09", type: 4, zone: 3 },
+    { date: "2026-06-09", type: 2, zone: 4 },
+    { date: "2026-06-09", type: 4, zone: 4 },
+    { date: "2026-06-15", type: 1, zone: 1 },
+    { date: "2026-06-15", type: 2, zone: 1 },
+    { date: "2026-06-15", type: 1, zone: 2 },
+    { date: "2026-06-15", type: 1, zone: 3 },
     { date: "2026-06-15", type: 1, zone: 4 },
-    { date: "2026-06-16", type: 2, zone: 2 }, { date: "2026-06-16", type: 2, zone: 3 },
+    { date: "2026-06-16", type: 2, zone: 2 },
+    { date: "2026-06-16", type: 2, zone: 3 },
     { date: "2026-06-16", type: 2, zone: 4 },
-    { date: "2026-06-22", type: 2, zone: 1 }, { date: "2026-06-22", type: 3, zone: 1 },
-    { date: "2026-06-23", type: 2, zone: 2 }, { date: "2026-06-23", type: 3, zone: 2 },
-    { date: "2026-06-23", type: 2, zone: 3 }, { date: "2026-06-23", type: 3, zone: 3 },
-    { date: "2026-06-23", type: 2, zone: 4 }, { date: "2026-06-23", type: 3, zone: 4 },
-    { date: "2026-06-29", type: 1, zone: 1 }, { date: "2026-06-29", type: 2, zone: 1 },
-    { date: "2026-06-29", type: 1, zone: 2 }, { date: "2026-06-29", type: 1, zone: 3 },
+    { date: "2026-06-22", type: 2, zone: 1 },
+    { date: "2026-06-22", type: 3, zone: 1 },
+    { date: "2026-06-23", type: 2, zone: 2 },
+    { date: "2026-06-23", type: 3, zone: 2 },
+    { date: "2026-06-23", type: 2, zone: 3 },
+    { date: "2026-06-23", type: 3, zone: 3 },
+    { date: "2026-06-23", type: 2, zone: 4 },
+    { date: "2026-06-23", type: 3, zone: 4 },
+    { date: "2026-06-29", type: 1, zone: 1 },
+    { date: "2026-06-29", type: 2, zone: 1 },
+    { date: "2026-06-29", type: 1, zone: 2 },
+    { date: "2026-06-29", type: 1, zone: 3 },
     { date: "2026-06-29", type: 1, zone: 4 },
-    { date: "2026-06-30", type: 2, zone: 2 }, { date: "2026-06-30", type: 2, zone: 3 },
+    { date: "2026-06-30", type: 2, zone: 2 },
+    { date: "2026-06-30", type: 2, zone: 3 },
     { date: "2026-06-30", type: 2, zone: 4 },
-    { date: "2026-07-06", type: 2, zone: 1 }, { date: "2026-07-06", type: 4, zone: 1 },
-    { date: "2026-07-07", type: 2, zone: 2 }, { date: "2026-07-07", type: 4, zone: 2 },
-    { date: "2026-07-07", type: 2, zone: 3 }, { date: "2026-07-07", type: 4, zone: 3 },
-    { date: "2026-07-07", type: 2, zone: 4 }, { date: "2026-07-07", type: 4, zone: 4 },
-    { date: "2026-07-13", type: 1, zone: 1 }, { date: "2026-07-13", type: 2, zone: 1 },
-    { date: "2026-07-13", type: 3, zone: 1 }, { date: "2026-07-13", type: 1, zone: 2 },
-    { date: "2026-07-13", type: 1, zone: 3 }, { date: "2026-07-13", type: 1, zone: 4 },
-    { date: "2026-07-14", type: 2, zone: 2 }, { date: "2026-07-14", type: 3, zone: 2 },
-    { date: "2026-07-14", type: 2, zone: 3 }, { date: "2026-07-14", type: 3, zone: 3 },
-    { date: "2026-07-14", type: 2, zone: 4 }, { date: "2026-07-14", type: 3, zone: 4 },
-    { date: "2026-07-18", type: 7, zone: 1 }, { date: "2026-07-18", type: 7, zone: 2 },
-    { date: "2026-07-18", type: 7, zone: 3 }, { date: "2026-07-18", type: 7, zone: 4 },
+    { date: "2026-07-06", type: 2, zone: 1 },
+    { date: "2026-07-06", type: 4, zone: 1 },
+    { date: "2026-07-07", type: 2, zone: 2 },
+    { date: "2026-07-07", type: 4, zone: 2 },
+    { date: "2026-07-07", type: 2, zone: 3 },
+    { date: "2026-07-07", type: 4, zone: 3 },
+    { date: "2026-07-07", type: 2, zone: 4 },
+    { date: "2026-07-07", type: 4, zone: 4 },
+    { date: "2026-07-13", type: 1, zone: 1 },
+    { date: "2026-07-13", type: 2, zone: 1 },
+    { date: "2026-07-13", type: 3, zone: 1 },
+    { date: "2026-07-13", type: 1, zone: 2 },
+    { date: "2026-07-13", type: 1, zone: 3 },
+    { date: "2026-07-13", type: 1, zone: 4 },
+    { date: "2026-07-14", type: 2, zone: 2 },
+    { date: "2026-07-14", type: 3, zone: 2 },
+    { date: "2026-07-14", type: 2, zone: 3 },
+    { date: "2026-07-14", type: 3, zone: 3 },
+    { date: "2026-07-14", type: 2, zone: 4 },
+    { date: "2026-07-14", type: 3, zone: 4 },
+    { date: "2026-07-18", type: 7, zone: 1 },
+    { date: "2026-07-18", type: 7, zone: 2 },
+    { date: "2026-07-18", type: 7, zone: 3 },
+    { date: "2026-07-18", type: 7, zone: 4 },
     { date: "2026-07-20", type: 2, zone: 1 },
-    { date: "2026-07-21", type: 2, zone: 2 }, { date: "2026-07-21", type: 2, zone: 3 },
+    { date: "2026-07-21", type: 2, zone: 2 },
+    { date: "2026-07-21", type: 2, zone: 3 },
     { date: "2026-07-21", type: 2, zone: 4 },
-    { date: "2026-07-27", type: 1, zone: 1 }, { date: "2026-07-27", type: 2, zone: 1 },
-    { date: "2026-07-27", type: 1, zone: 2 }, { date: "2026-07-27", type: 1, zone: 3 },
+    { date: "2026-07-27", type: 1, zone: 1 },
+    { date: "2026-07-27", type: 2, zone: 1 },
+    { date: "2026-07-27", type: 1, zone: 2 },
+    { date: "2026-07-27", type: 1, zone: 3 },
     { date: "2026-07-27", type: 1, zone: 4 },
-    { date: "2026-07-28", type: 2, zone: 2 }, { date: "2026-07-28", type: 2, zone: 3 },
+    { date: "2026-07-28", type: 2, zone: 2 },
+    { date: "2026-07-28", type: 2, zone: 3 },
     { date: "2026-07-28", type: 2, zone: 4 },
-    { date: "2026-08-03", type: 2, zone: 1 }, { date: "2026-08-03", type: 3, zone: 1 },
+    { date: "2026-08-03", type: 2, zone: 1 },
+    { date: "2026-08-03", type: 3, zone: 1 },
     { date: "2026-08-03", type: 4, zone: 1 },
-    { date: "2026-08-04", type: 2, zone: 2 }, { date: "2026-08-04", type: 3, zone: 2 },
-    { date: "2026-08-04", type: 4, zone: 2 }, { date: "2026-08-04", type: 2, zone: 3 },
-    { date: "2026-08-04", type: 3, zone: 3 }, { date: "2026-08-04", type: 4, zone: 3 },
-    { date: "2026-08-04", type: 2, zone: 4 }, { date: "2026-08-04", type: 3, zone: 4 },
+    { date: "2026-08-04", type: 2, zone: 2 },
+    { date: "2026-08-04", type: 3, zone: 2 },
+    { date: "2026-08-04", type: 4, zone: 2 },
+    { date: "2026-08-04", type: 2, zone: 3 },
+    { date: "2026-08-04", type: 3, zone: 3 },
+    { date: "2026-08-04", type: 4, zone: 3 },
+    { date: "2026-08-04", type: 2, zone: 4 },
+    { date: "2026-08-04", type: 3, zone: 4 },
     { date: "2026-08-04", type: 4, zone: 4 },
-    { date: "2026-08-10", type: 1, zone: 1 }, { date: "2026-08-10", type: 2, zone: 1 },
-    { date: "2026-08-10", type: 1, zone: 2 }, { date: "2026-08-10", type: 1, zone: 3 },
+    { date: "2026-08-10", type: 1, zone: 1 },
+    { date: "2026-08-10", type: 2, zone: 1 },
+    { date: "2026-08-10", type: 1, zone: 2 },
+    { date: "2026-08-10", type: 1, zone: 3 },
     { date: "2026-08-10", type: 1, zone: 4 },
-    { date: "2026-08-11", type: 2, zone: 2 }, { date: "2026-08-11", type: 2, zone: 3 },
+    { date: "2026-08-11", type: 2, zone: 2 },
+    { date: "2026-08-11", type: 2, zone: 3 },
     { date: "2026-08-11", type: 2, zone: 4 },
     { date: "2026-08-17", type: 2, zone: 1 },
-    { date: "2026-08-18", type: 2, zone: 2 }, { date: "2026-08-18", type: 2, zone: 3 },
+    { date: "2026-08-18", type: 2, zone: 2 },
+    { date: "2026-08-18", type: 2, zone: 3 },
     { date: "2026-08-18", type: 2, zone: 4 },
-    { date: "2026-08-24", type: 1, zone: 1 }, { date: "2026-08-24", type: 2, zone: 1 },
-    { date: "2026-08-24", type: 3, zone: 1 }, { date: "2026-08-24", type: 1, zone: 2 },
-    { date: "2026-08-24", type: 1, zone: 3 }, { date: "2026-08-24", type: 1, zone: 4 },
-    { date: "2026-08-25", type: 2, zone: 2 }, { date: "2026-08-25", type: 3, zone: 2 },
-    { date: "2026-08-25", type: 2, zone: 3 }, { date: "2026-08-25", type: 3, zone: 3 },
-    { date: "2026-08-25", type: 2, zone: 4 }, { date: "2026-08-25", type: 3, zone: 4 },
-    { date: "2026-08-31", type: 2, zone: 1 }, { date: "2026-08-31", type: 4, zone: 1 },
-    { date: "2026-09-01", type: 2, zone: 2 }, { date: "2026-09-01", type: 4, zone: 2 },
-    { date: "2026-09-01", type: 2, zone: 3 }, { date: "2026-09-01", type: 4, zone: 3 },
-    { date: "2026-09-01", type: 2, zone: 4 }, { date: "2026-09-01", type: 4, zone: 4 },
-    { date: "2026-09-07", type: 1, zone: 1 }, { date: "2026-09-07", type: 2, zone: 1 },
-    { date: "2026-09-07", type: 1, zone: 2 }, { date: "2026-09-07", type: 1, zone: 3 },
+    { date: "2026-08-24", type: 1, zone: 1 },
+    { date: "2026-08-24", type: 2, zone: 1 },
+    { date: "2026-08-24", type: 3, zone: 1 },
+    { date: "2026-08-24", type: 1, zone: 2 },
+    { date: "2026-08-24", type: 1, zone: 3 },
+    { date: "2026-08-24", type: 1, zone: 4 },
+    { date: "2026-08-25", type: 2, zone: 2 },
+    { date: "2026-08-25", type: 3, zone: 2 },
+    { date: "2026-08-25", type: 2, zone: 3 },
+    { date: "2026-08-25", type: 3, zone: 3 },
+    { date: "2026-08-25", type: 2, zone: 4 },
+    { date: "2026-08-25", type: 3, zone: 4 },
+    { date: "2026-08-31", type: 2, zone: 1 },
+    { date: "2026-08-31", type: 4, zone: 1 },
+    { date: "2026-09-01", type: 2, zone: 2 },
+    { date: "2026-09-01", type: 4, zone: 2 },
+    { date: "2026-09-01", type: 2, zone: 3 },
+    { date: "2026-09-01", type: 4, zone: 3 },
+    { date: "2026-09-01", type: 2, zone: 4 },
+    { date: "2026-09-01", type: 4, zone: 4 },
+    { date: "2026-09-07", type: 1, zone: 1 },
+    { date: "2026-09-07", type: 2, zone: 1 },
+    { date: "2026-09-07", type: 1, zone: 2 },
+    { date: "2026-09-07", type: 1, zone: 3 },
     { date: "2026-09-07", type: 1, zone: 4 },
-    { date: "2026-09-08", type: 2, zone: 2 }, { date: "2026-09-08", type: 2, zone: 3 },
+    { date: "2026-09-08", type: 2, zone: 2 },
+    { date: "2026-09-08", type: 2, zone: 3 },
     { date: "2026-09-08", type: 2, zone: 4 },
-    { date: "2026-09-14", type: 2, zone: 1 }, { date: "2026-09-14", type: 3, zone: 1 },
-    { date: "2026-09-15", type: 2, zone: 2 }, { date: "2026-09-15", type: 3, zone: 2 },
-    { date: "2026-09-15", type: 2, zone: 3 }, { date: "2026-09-15", type: 3, zone: 3 },
-    { date: "2026-09-15", type: 2, zone: 4 }, { date: "2026-09-15", type: 3, zone: 4 },
-    { date: "2026-09-21", type: 1, zone: 1 }, { date: "2026-09-21", type: 2, zone: 1 },
-    { date: "2026-09-21", type: 1, zone: 2 }, { date: "2026-09-21", type: 1, zone: 3 },
+    { date: "2026-09-14", type: 2, zone: 1 },
+    { date: "2026-09-14", type: 3, zone: 1 },
+    { date: "2026-09-15", type: 2, zone: 2 },
+    { date: "2026-09-15", type: 3, zone: 2 },
+    { date: "2026-09-15", type: 2, zone: 3 },
+    { date: "2026-09-15", type: 3, zone: 3 },
+    { date: "2026-09-15", type: 2, zone: 4 },
+    { date: "2026-09-15", type: 3, zone: 4 },
+    { date: "2026-09-21", type: 1, zone: 1 },
+    { date: "2026-09-21", type: 2, zone: 1 },
+    { date: "2026-09-21", type: 1, zone: 2 },
+    { date: "2026-09-21", type: 1, zone: 3 },
     { date: "2026-09-21", type: 1, zone: 4 },
-    { date: "2026-09-22", type: 2, zone: 2 }, { date: "2026-09-22", type: 2, zone: 3 },
+    { date: "2026-09-22", type: 2, zone: 2 },
+    { date: "2026-09-22", type: 2, zone: 3 },
     { date: "2026-09-22", type: 2, zone: 4 },
-    { date: "2026-09-26", type: 4, zone: 2 },
-    { date: "2026-09-28", type: 2, zone: 1 }, { date: "2026-09-28", type: 4, zone: 1 },
-    { date: "2026-09-29", type: 2, zone: 2 }, { date: "2026-09-29", type: 4, zone: 2 },
-    { date: "2026-09-29", type: 2, zone: 3 }, { date: "2026-09-29", type: 4, zone: 3 },
-    { date: "2026-09-29", type: 2, zone: 4 }, { date: "2026-09-29", type: 4, zone: 4 },
-    { date: "2026-10-05", type: 1, zone: 1 }, { date: "2026-10-05", type: 3, zone: 1 },
-    { date: "2026-10-05", type: 1, zone: 2 }, { date: "2026-10-05", type: 1, zone: 3 },
+    { date: "2026-09-26", type: 8, zone: 2 },
+    { date: "2026-09-28", type: 2, zone: 1 },
+    { date: "2026-09-28", type: 4, zone: 1 },
+    { date: "2026-09-29", type: 2, zone: 2 },
+    { date: "2026-09-29", type: 4, zone: 2 },
+    { date: "2026-09-29", type: 2, zone: 3 },
+    { date: "2026-09-29", type: 4, zone: 3 },
+    { date: "2026-09-29", type: 2, zone: 4 },
+    { date: "2026-09-29", type: 4, zone: 4 },
+    { date: "2026-10-05", type: 1, zone: 1 },
+    { date: "2026-10-05", type: 3, zone: 1 },
+    { date: "2026-10-05", type: 1, zone: 2 },
+    { date: "2026-10-05", type: 1, zone: 3 },
     { date: "2026-10-05", type: 1, zone: 4 },
-    { date: "2026-10-06", type: 3, zone: 2 }, { date: "2026-10-06", type: 3, zone: 3 },
+    { date: "2026-10-06", type: 3, zone: 2 },
+    { date: "2026-10-06", type: 3, zone: 3 },
     { date: "2026-10-06", type: 3, zone: 4 },
-    { date: "2026-10-10", type: 4, zone: 1 },
+    { date: "2026-10-10", type: 8, zone: 1 },
     { date: "2026-10-12", type: 2, zone: 1 },
-    { date: "2026-10-13", type: 2, zone: 2 }, { date: "2026-10-13", type: 2, zone: 3 },
+    { date: "2026-10-13", type: 2, zone: 2 },
+    { date: "2026-10-13", type: 2, zone: 3 },
     { date: "2026-10-13", type: 2, zone: 4 },
-    { date: "2026-10-19", type: 1, zone: 1 }, { date: "2026-10-19", type: 1, zone: 2 },
-    { date: "2026-10-19", type: 1, zone: 3 }, { date: "2026-10-19", type: 1, zone: 4 },
-    { date: "2026-10-26", type: 2, zone: 1 }, { date: "2026-10-26", type: 3, zone: 1 },
+    { date: "2026-10-19", type: 1, zone: 1 },
+    { date: "2026-10-19", type: 1, zone: 2 },
+    { date: "2026-10-19", type: 1, zone: 3 },
+    { date: "2026-10-19", type: 1, zone: 4 },
+    { date: "2026-10-26", type: 2, zone: 1 },
+    { date: "2026-10-26", type: 3, zone: 1 },
     { date: "2026-10-26", type: 4, zone: 1 },
-    { date: "2026-10-27", type: 2, zone: 2 }, { date: "2026-10-27", type: 3, zone: 2 },
-    { date: "2026-10-27", type: 4, zone: 2 }, { date: "2026-10-27", type: 2, zone: 3 },
-    { date: "2026-10-27", type: 3, zone: 3 }, { date: "2026-10-27", type: 4, zone: 3 },
-    { date: "2026-10-27", type: 2, zone: 4 }, { date: "2026-10-27", type: 3, zone: 4 },
+    { date: "2026-10-27", type: 2, zone: 2 },
+    { date: "2026-10-27", type: 3, zone: 2 },
+    { date: "2026-10-27", type: 4, zone: 2 },
+    { date: "2026-10-27", type: 2, zone: 3 },
+    { date: "2026-10-27", type: 3, zone: 3 },
+    { date: "2026-10-27", type: 4, zone: 3 },
+    { date: "2026-10-27", type: 2, zone: 4 },
+    { date: "2026-10-27", type: 3, zone: 4 },
     { date: "2026-10-27", type: 4, zone: 4 },
-    { date: "2026-11-02", type: 1, zone: 1 }, { date: "2026-11-02", type: 1, zone: 2 },
-    { date: "2026-11-02", type: 1, zone: 3 }, { date: "2026-11-02", type: 1, zone: 4 },
-    { date: "2026-11-04", type: 7, zone: 1 }, { date: "2026-11-04", type: 7, zone: 2 },
-    { date: "2026-11-04", type: 7, zone: 3 }, { date: "2026-11-04", type: 7, zone: 4 },
+    { date: "2026-11-02", type: 1, zone: 1 },
+    { date: "2026-11-02", type: 1, zone: 2 },
+    { date: "2026-11-02", type: 1, zone: 3 },
+    { date: "2026-11-02", type: 1, zone: 4 },
+    { date: "2026-11-04", type: 7, zone: 1 },
+    { date: "2026-11-04", type: 7, zone: 2 },
+    { date: "2026-11-04", type: 7, zone: 3 },
+    { date: "2026-11-04", type: 7, zone: 4 },
     { date: "2026-11-09", type: 2, zone: 1 },
-    { date: "2026-11-10", type: 2, zone: 2 }, { date: "2026-11-10", type: 2, zone: 3 },
+    { date: "2026-11-10", type: 2, zone: 2 },
+    { date: "2026-11-10", type: 2, zone: 3 },
     { date: "2026-11-10", type: 2, zone: 4 },
-    { date: "2026-11-16", type: 1, zone: 1 }, { date: "2026-11-16", type: 3, zone: 1 },
-    { date: "2026-11-16", type: 1, zone: 2 }, { date: "2026-11-16", type: 1, zone: 3 },
+    { date: "2026-11-16", type: 1, zone: 1 },
+    { date: "2026-11-16", type: 3, zone: 1 },
+    { date: "2026-11-16", type: 1, zone: 2 },
+    { date: "2026-11-16", type: 1, zone: 3 },
     { date: "2026-11-16", type: 1, zone: 4 },
-    { date: "2026-11-17", type: 3, zone: 2 }, { date: "2026-11-17", type: 3, zone: 3 },
+    { date: "2026-11-17", type: 3, zone: 2 },
+    { date: "2026-11-17", type: 3, zone: 3 },
     { date: "2026-11-17", type: 3, zone: 4 },
-    { date: "2026-11-23", type: 2, zone: 1 }, { date: "2026-11-23", type: 4, zone: 1 },
-    { date: "2026-11-24", type: 2, zone: 2 }, { date: "2026-11-24", type: 4, zone: 2 },
-    { date: "2026-11-24", type: 2, zone: 3 }, { date: "2026-11-24", type: 4, zone: 3 },
-    { date: "2026-11-24", type: 2, zone: 4 }, { date: "2026-11-24", type: 4, zone: 4 },
-    { date: "2026-11-30", type: 1, zone: 1 }, { date: "2026-11-30", type: 1, zone: 2 },
-    { date: "2026-11-30", type: 1, zone: 3 }, { date: "2026-11-30", type: 1, zone: 4 },
-    { date: "2026-12-07", type: 2, zone: 1 }, { date: "2026-12-07", type: 3, zone: 1 },
-    { date: "2026-12-08", type: 2, zone: 2 }, { date: "2026-12-08", type: 3, zone: 2 },
-    { date: "2026-12-08", type: 2, zone: 3 }, { date: "2026-12-08", type: 3, zone: 3 },
-    { date: "2026-12-08", type: 2, zone: 4 }, { date: "2026-12-08", type: 3, zone: 4 },
-    { date: "2026-12-12", type: 4, zone: 2 },
-    { date: "2026-12-14", type: 1, zone: 1 }, { date: "2026-12-14", type: 1, zone: 2 },
-    { date: "2026-12-14", type: 1, zone: 3 }, { date: "2026-12-14", type: 1, zone: 4 },
-    { date: "2026-12-19", type: 2, zone: 1 }, { date: "2026-12-19", type: 4, zone: 1 },
-    { date: "2026-12-21", type: 2, zone: 2 }, { date: "2026-12-21", type: 4, zone: 2 },
-    { date: "2026-12-21", type: 2, zone: 3 }, { date: "2026-12-21", type: 4, zone: 3 },
-    { date: "2026-12-21", type: 2, zone: 4 }, { date: "2026-12-21", type: 4, zone: 4 },
-    { date: "2026-12-28", type: 1, zone: 1 }, { date: "2026-12-28", type: 3, zone: 1 },
-    { date: "2026-12-28", type: 1, zone: 2 }, { date: "2026-12-28", type: 1, zone: 3 },
+    { date: "2026-11-23", type: 2, zone: 1 },
+    { date: "2026-11-23", type: 4, zone: 1 },
+    { date: "2026-11-24", type: 2, zone: 2 },
+    { date: "2026-11-24", type: 4, zone: 2 },
+    { date: "2026-11-24", type: 2, zone: 3 },
+    { date: "2026-11-24", type: 4, zone: 3 },
+    { date: "2026-11-24", type: 2, zone: 4 },
+    { date: "2026-11-24", type: 4, zone: 4 },
+    { date: "2026-11-30", type: 1, zone: 1 },
+    { date: "2026-11-30", type: 1, zone: 2 },
+    { date: "2026-11-30", type: 1, zone: 3 },
+    { date: "2026-11-30", type: 1, zone: 4 },
+    { date: "2026-12-07", type: 2, zone: 1 },
+    { date: "2026-12-07", type: 3, zone: 1 },
+    { date: "2026-12-08", type: 2, zone: 2 },
+    { date: "2026-12-08", type: 3, zone: 2 },
+    { date: "2026-12-08", type: 2, zone: 3 },
+    { date: "2026-12-08", type: 3, zone: 3 },
+    { date: "2026-12-08", type: 2, zone: 4 },
+    { date: "2026-12-08", type: 3, zone: 4 },
+    { date: "2026-12-12", type: 8, zone: 2 },
+    { date: "2026-12-14", type: 1, zone: 1 },
+    { date: "2026-12-14", type: 1, zone: 2 },
+    { date: "2026-12-14", type: 1, zone: 3 },
+    { date: "2026-12-14", type: 1, zone: 4 },
+    { date: "2026-12-19", type: 2, zone: 1 },
+    { date: "2026-12-19", type: 4, zone: 1 },
+    { date: "2026-12-21", type: 2, zone: 2 },
+    { date: "2026-12-21", type: 4, zone: 2 },
+    { date: "2026-12-21", type: 2, zone: 3 },
+    { date: "2026-12-21", type: 4, zone: 3 },
+    { date: "2026-12-21", type: 2, zone: 4 },
+    { date: "2026-12-21", type: 4, zone: 4 },
+    { date: "2026-12-28", type: 1, zone: 1 },
+    { date: "2026-12-28", type: 3, zone: 1 },
+    { date: "2026-12-28", type: 1, zone: 2 },
+    { date: "2026-12-28", type: 1, zone: 3 },
     { date: "2026-12-28", type: 1, zone: 4 },
-    { date: "2026-12-29", type: 3, zone: 2 }, { date: "2026-12-29", type: 3, zone: 3 },
+    { date: "2026-12-29", type: 3, zone: 2 },
+    { date: "2026-12-29", type: 3, zone: 3 },
     { date: "2026-12-29", type: 3, zone: 4 },
   ],
   guide: [
@@ -271,8 +439,9 @@ const DB = {
     { item: "Batterien",          type: 7, tip: "Sammelbox im Supermarkt" },
     { item: "Farbreste",          type: 7, tip: "Schadstoffmobil – nicht ausgießen!" },
     { item: "Energiesparlampe",   type: 7, tip: "Schadstoffmobil oder RAZ Breisgau" },
-    { item: "Möbel",              type: 6, tip: "Sperrmüll online anmelden" },
-    { item: "Matratze",           type: 6, tip: "Sperrmüll Abholung beantragen" },
+    { item: "Sperrige Möbel",      type: 6, tip: "Sperrmüll online anmelden unter breisgau-hochschwarzwald.de/sperrmuell" },
+    { item: "Zeitungen (Bündel)", type: 8, tip: "Gebündelt an die Straße legen – Vereinssammlung" },
+    { item: "Kartonagen (Bündel)",type: 8, tip: "Flach zusammengelegt und gebündelt – Vereinssammlung" },
   ],
 };
 
@@ -798,42 +967,153 @@ function GuideScreen({ C }) {
 }
 
 // ─── INFO ─────────────────────────────────────────────────────────────────────
+function InfoAccordion({ title, icon, color, children, C, defaultOpen }) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  return (
+    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, marginBottom:10, overflow:"hidden" }}>
+      <div onClick={() => setOpen(!open)} style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", cursor:"pointer" }}>
+        <span style={{ fontSize:20, flexShrink:0 }}>{icon}</span>
+        <div style={{ flex:1, fontSize:14, fontWeight:700, color:C.text }}>{title}</div>
+        <span style={{ color:C.sub, fontSize:16, transition:"transform 0.2s", display:"inline-block", transform:open?"rotate(180deg)":"none" }}>▾</span>
+      </div>
+      {open && (
+        <div style={{ padding:"0 16px 16px", borderTop:`1px solid ${C.border}` }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function InfoScreen({ C, dark }) {
   return (
     <div style={{ padding:"18px 16px" }}>
-      <div style={{ fontSize:20, fontWeight:700, color:C.text, marginBottom:16 }}>Kontakt & Info</div>
+      <div style={{ fontSize:20, fontWeight:700, color:C.text, marginBottom:4 }}>Info</div>
+      <div style={{ fontSize:13, color:C.sub, marginBottom:18 }}>Abfuhrregeln, Standorte & Kontakt</div>
 
-      <SLabel text="Schadstoffmobil 2026" C={C} />
-      <div style={{ background:C.card, borderRadius:16, border:`1px solid #DC262633`, overflow:"hidden", marginBottom:20 }}>
-        {[["31.01.","Sa","13:00–16:00"],["10.03.","Di","15:30–18:00"],["18.07.","Sa","09:00–12:00"],["04.11.","Mi","15:00–18:00"]].map(([d,wd,t],i,a) => (
-          <div key={d} style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 16px", borderBottom:i<a.length-1?`1px solid ${C.border}`:"none" }}>
-            <div style={{ width:46, textAlign:"center" }}>
+      {/* Schadstoffsammlung */}
+      <InfoAccordion title="Schadstoffsammlung 2026" icon="☣️" C={C} defaultOpen>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.7, marginTop:12, marginBottom:12 }}>
+          📍 P Atomics ggü. Nepomuks Kinderwelt, Rheinwaldstr.
+        </div>
+        {[["31.01.","Sa","13:00–16:00 Uhr"],["10.03.","Di","15:30–18:00 Uhr"],["18.07.","Sa","09:00–12:00 Uhr"],["04.11.","Mi","15:00–18:00 Uhr"]].map(([d,wd,t],i,a) => (
+          <div key={d} style={{ display:"flex", alignItems:"center", gap:14, padding:"10px 0", borderTop:`1px solid ${C.border}` }}>
+            <div style={{ width:46, textAlign:"center", flexShrink:0 }}>
               <div style={{ fontSize:9, color:"#DC2626", fontWeight:700 }}>{wd}</div>
-              <div style={{ fontSize:14, fontWeight:800, color:C.text }}>{d}</div>
+              <div style={{ fontSize:15, fontWeight:800, color:C.text }}>{d}</div>
             </div>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:C.text }}>☣️ Schadstoffsammlung</div>
-              <div style={{ fontSize:11, color:C.sub }}>P Atomics, Rheinwaldstr. · {t} Uhr</div>
-            </div>
+            <div style={{ fontSize:12, color:C.sub }}>{t}</div>
           </div>
         ))}
-      </div>
-
-      <SLabel text="Benachrichtigungen" C={C} />
-      <NotifInfoPanel C={C} dark={dark} />
-
-      <SLabel text="Kontakt" C={C} />
-      {[
-        ["📞","Abfallberatung ALB","0761 2187-9707"],
-        ["📞","REMONDIS (Gelbe Tonne)","0761 51509-95"],
-        ["✉️","Sperrmüll","sperrmuell@lkbh.de"],
-        ["🏭","Recyclinghof Müllheim","Mi 14–17 · Sa 10–14 Uhr"],
-      ].map(([icon,label,val],i) => (
-        <div key={i} style={{ background:C.card, borderRadius:13, padding:"12px 16px", marginBottom:7, display:"flex", justifyContent:"space-between", alignItems:"center", border:`1px solid ${C.border}` }}>
-          <div style={{ fontSize:12, color:C.sub }}>{icon} {label}</div>
-          <div style={{ fontSize:12, fontWeight:700, color:C.gold }}>{val}</div>
+        <div style={{ fontSize:11, color:C.sub, lineHeight:1.6, marginTop:12, padding:"10px 0", borderTop:`1px solid ${C.border}` }}>
+          Sie können auch die Sammeltermine in anderen Gemeinden nutzen. Alle Termine stehen auf unserer Internetseite.
         </div>
-      ))}
+      </InfoAccordion>
+
+      {/* Sperrmüll */}
+      <InfoAccordion title="Sperrmüll" icon="🛋️" C={C}>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.8, marginTop:12 }}>
+          Zur Abfuhrbestellung die Sperrmüllkarte an die ALB schicken oder online anmelden unter{" "}
+          <span style={{ color:"#1D4ED8" }}>www.breisgau-hochschwarzwald.de/sperrmuell</span>.
+          {" "}Der Abholtermin wird innerhalb von 5 Wochen mitgeteilt.
+        </div>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.8, marginTop:10 }}>
+          Selbstanlieferung mit Sperrmüllkarte bei:
+        </div>
+        {["RAZ Breisgau", "Remondis, Liebigstraße, Freiburg (Mo und Do 13:00–17:00 Uhr)"].map((s,i) => (
+          <div key={i} style={{ fontSize:12, color:C.text, padding:"6px 0 6px 12px", borderLeft:`2px solid ${C.border}`, marginTop:6 }}>· {s}</div>
+        ))}
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.7, marginTop:10, padding:"10px 0", borderTop:`1px solid ${C.border}` }}>
+          💡 Noch brauchbare Gegenstände holt evtl. der Verein <strong style={{color:C.text}}>Secondo</strong> ab. Tel. 07665 947430
+        </div>
+      </InfoAccordion>
+
+      {/* Abfuhrregeln */}
+      <InfoAccordion title="Abfuhrregeln" icon="ℹ️" C={C}>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.8, marginTop:12 }}>
+          🕕 Die Tonnen müssen ab <strong style={{color:C.text}}>6:00 Uhr morgens</strong> bereitstehen.
+        </div>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.8, marginTop:12, padding:"12px 0", borderTop:`1px solid ${C.border}` }}>
+          ❄️ <strong style={{color:C.text}}>Abfuhrregelung im Winter:</strong> Konnten Straßen witterungsbedingt nicht angefahren werden, die Müllgefäße erstmal stehen lassen. Es wird versucht, innerhalb der folgenden 2 Werktage zu leeren. Ist das nicht möglich, erhalten Sie bei der Gemeindeverwaltung gebührenfreie <strong style={{color:C.text}}>Notfallsäcke für Restmüll (orange)</strong>.
+        </div>
+      </InfoAccordion>
+
+      {/* RAZ Breisgau */}
+      <InfoAccordion title="RAZ Breisgau" icon="🏭" C={C}>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.8, marginTop:12 }}>
+          📍 Ehrenkirchener Straße 3, 79427 Eschbach
+        </div>
+        {[["Mo, Di, Do, Fr","09:00–15:00 Uhr"],["Di zusätzlich","12:00–18:00 Uhr"],["Samstag","08:00–12:00 Uhr"]].map(([d,t],i) => (
+          <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderTop:`1px solid ${C.border}`, marginTop:6 }}>
+            <span style={{ fontSize:12, color:C.sub }}>{d}</span>
+            <span style={{ fontSize:12, fontWeight:600, color:C.text }}>{t}</span>
+          </div>
+        ))}
+        <div style={{ fontSize:11, color:C.sub, marginTop:8 }}>Letzter Einlass 15 Minuten vor Betriebsende.</div>
+        <div style={{ fontSize:11, color:C.sub, marginTop:6, lineHeight:1.6 }}>Papier, Kartonage, Metall, Elektrogeräte, CDs, Flaschenglas, gebührenpflichtige Abfälle, Grünschnitt</div>
+      </InfoAccordion>
+
+      {/* Recyclinghof Müllheim */}
+      <InfoAccordion title="Recyclinghof Müllheim" icon="♻️" C={C}>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.8, marginTop:12 }}>
+          📍 Renkenrunsstraße 8b, 79379 Müllheim
+        </div>
+        {[["Mittwoch","14:00–17:00 Uhr"],["Samstag","10:00–14:00 Uhr"]].map(([d,t],i) => (
+          <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderTop:`1px solid ${C.border}`, marginTop:6 }}>
+            <span style={{ fontSize:12, color:C.sub }}>{d}</span>
+            <span style={{ fontSize:12, fontWeight:600, color:C.text }}>{t}</span>
+          </div>
+        ))}
+        <div style={{ fontSize:11, color:C.sub, marginTop:8, lineHeight:1.6 }}>Papier, Kartonagen, Metall, Flaschenglas/-kork, Elektrogeräte, CDs.</div>
+      </InfoAccordion>
+
+      {/* Breisgau Kompost */}
+      <InfoAccordion title="Breisgau Kompost GmbH" icon="🌱" C={C}>
+        <div style={{ fontSize:12, color:C.sub, lineHeight:1.8, marginTop:12 }}>
+          📍 Renkenrunsstraße 8, 79379 Müllheim · T.: 07631 172323
+        </div>
+        {[["Mo–Do","07:30–16:30 Uhr"],["Freitag","07:30–18:00 Uhr"],["Samstag","08:00–13:00 Uhr"]].map(([d,t],i) => (
+          <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderTop:`1px solid ${C.border}`, marginTop:6 }}>
+            <span style={{ fontSize:12, color:C.sub }}>{d}</span>
+            <span style={{ fontSize:12, fontWeight:600, color:C.text }}>{t}</span>
+          </div>
+        ))}
+        <div style={{ fontSize:12, color:C.sub, marginTop:10, padding:"10px 0", borderTop:`1px solid ${C.border}`, lineHeight:1.7 }}>
+          🗓️ <strong style={{color:C.text}}>Dezember bis Februar:</strong> Mo–Fr 08:00–16:00 Uhr · Sa 08:00–13:00 Uhr
+        </div>
+      </InfoAccordion>
+
+      {/* Kontakt */}
+      <InfoAccordion title="Kontakt" icon="📞" C={C}>
+        <div style={{ marginTop:12, display:"flex", flexDirection:"column", gap:8 }}>
+          {[
+            ["Reklamationen (Restmüll, Bio, Papier)", "REMONDIS", "0761 2187-9707","reklamation.alb@lkbh.de"],
+            ["Gelbe Tonne", "REMONDIS", "0761 51509-95","lkbh@remondis.de"],
+            ["Abfallberatung", "ALB", "0761 2187-9707","alb@lkbh.de"],
+            ["Gebühren / Behälter", "ALB", "0761 2187-8844","gebuehreneinzug@lkbh.de"],
+            ["Sperrmüllservice", "ALB", "0761 2187-8844","sperrmuell@lkbh.de"],
+          ].map(([label,org,tel,email],i) => (
+            <div key={i} style={{ background:C.card2 || (dark?"#2C2C2E":"#F4F4F5"), borderRadius:12, padding:"11px 13px" }}>
+              <div style={{ fontSize:10, color:C.sub, marginBottom:3 }}>{label}</div>
+              <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:4 }}>{org}</div>
+              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                <span style={{ fontSize:11, color:"#1D4ED8" }}>📞 {tel}</span>
+                <span style={{ fontSize:11, color:"#1D4ED8" }}>✉️ {email}</span>
+              </div>
+            </div>
+          ))}
+          <div style={{ fontSize:11, color:C.sub, textAlign:"center", paddingTop:4 }}>
+            🌐 www.breisgau-hochschwarzwald.de/alb
+          </div>
+        </div>
+      </InfoAccordion>
+
+      {/* Benachrichtigungen */}
+      <InfoAccordion title="Benachrichtigungen" icon="🔔" C={C}>
+        <div style={{ marginTop:12 }}>
+          <NotifInfoPanel C={C} dark={dark} />
+        </div>
+      </InfoAccordion>
 
       <div style={{ textAlign:"center", color:C.sub, fontSize:11, padding:"16px 0" }}>
         Daten: ALB Breisgau-Hochschwarzwald · 2026

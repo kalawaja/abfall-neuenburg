@@ -1,0 +1,16 @@
+{
+  "short_name": "Abfall NB",
+  "name": "Abfall Neuenburg am Rhein",
+  "description": "Abfuhrtermine für alle Ortsteile von Neuenburg am Rhein – Stadt, Grißheim, Steinenstadt, Zienken.",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0D0D0F",
+  "background_color": "#0D0D0F",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
